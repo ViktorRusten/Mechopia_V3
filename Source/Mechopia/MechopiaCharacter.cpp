@@ -12,12 +12,18 @@ AMechopiaCharacter::AMechopiaCharacter()
 {
 	PlayerHealth = 5;
 
+	CurrentHealth = PlayerHealth;
+
+	PlayerHealthHUD = 1;
+
 	InvincibleTimer = 2;
 
 	DamageTimer = 0;
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+
+	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 	// set our turn rates for input
 	BaseTurnRate = 45.f;
@@ -147,10 +153,11 @@ int AMechopiaCharacter::TakingDamage(int Damage) {
 		UE_LOG(LogTemp, Warning, TEXT("Taking damage"));
 		if (Damage) {
 
-			PlayerHealth -= Damage;
+			CurrentHealth -= Damage;
 			DamageTimer = InvincibleTimer;
+			PlayerHealthHUD = (CurrentHealth / PlayerHealth);
 		}
-		if (PlayerHealth < 1) {
+		if (CurrentHealth < 1) {
 			UE_LOG(LogTemp, Warning, TEXT("Dead"));
 			UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
 		}

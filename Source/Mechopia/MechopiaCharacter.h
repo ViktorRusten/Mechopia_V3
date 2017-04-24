@@ -66,8 +66,11 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Damage")
 		int TakingDamage(int Damage);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 		float PlayerHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HUD")
+		float PlayerHealthHUD;
 
 	UPROPERTY(EditAnywhere, Category = "Spawning")       //Category gir en overskrift i Editoren
 		TSubclassOf<class APlayerBullet> BulletBlueprint;
@@ -81,6 +84,8 @@ public:
 private:
 
 	float DamageTimer;
+
+	float CurrentHealth;
 
 };
 
