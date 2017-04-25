@@ -10,6 +10,16 @@
 
 AMechopiaCharacter::AMechopiaCharacter()
 {
+	ShootDelay = 0.3;
+
+	ShootAnimDelay = 1;
+
+	ShootDelayTimer = 0;
+
+	ShootAnimTimer = 0;
+
+	GoingToShoot = false;
+
 	PlayerHealth = 5;
 
 	CurrentHealth = PlayerHealth;
@@ -68,6 +78,7 @@ void AMechopiaCharacter::SetupPlayerInputComponent(class UInputComponent* Player
 	PlayerInputComponent->BindAxis("MoveForward", this, &AMechopiaCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMechopiaCharacter::MoveRight);
 
+
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
@@ -84,6 +95,44 @@ void AMechopiaCharacter::Tick(float DeltaTime)
 
 	if (DamageTimer > 0) {
 		DamageTimer -= DeltaTime;
+	}
+
+	if (ShootAnimTimer > 0) {
+		ShootAnimTimer -= DeltaTime;
+	}
+	else {
+		Shooting = false;
+	}
+
+	if (ShootDelayTimer > 0) {
+		ShootDelayTimer -= DeltaTime;
+	}else if(GoingToShoot == true) {
+		//  I f.eks. Shoot()-funksjon:
+		UWorld* World = GetWorld();	//Henter peker til spillverdenen
+		if (World)			//tester at verdenen finnes
+		{
+			UE_LOG(LogTemp, Warning, TEXT("World is present"));
+
+			FVector Location = GetActorLocation();
+
+			FRotator Rotation = GetActorRotation();
+
+			FVector Forward = GetActorForwardVector();
+
+			World->SpawnActor<APlayerBullet>(BulletBlueprint, Location + (Forward * SpawnDistance), Rotation);
+
+			GoingToShoot = false;
+		}
+	}
+
+	if (MovingVector.IsZero())
+	{
+		Moving = false;
+	}
+	else {
+		Moving = true;
+		MovingVector.X = 0;
+		MovingVector.Y = 0;
 	}
 }
 
@@ -110,6 +159,8 @@ void AMechopiaCharacter::MoveForward(float Value)
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Direction, Value);
+
+		MovingVector.Y = Value;
 	}
 }
 
@@ -125,25 +176,23 @@ void AMechopiaCharacter::MoveRight(float Value)
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
+
+		MovingVector.X = Value;
 	}
 }
 
 void AMechopiaCharacter::Fire()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Trying to fire"));
-	//  I f.eks. Shoot()-funksjon:
-	UWorld* World = GetWorld();	//Henter peker til spillverdenen
-	if (World)			//tester at verdenen finnes
-	{
-		UE_LOG(LogTemp, Warning, TEXT("World is present"));
+	if (ShootAnimTimer < 0.001f) {
+		UE_LOG(LogTemp, Warning, TEXT("Trying to fire"));
 
-		FVector Location = GetActorLocation();
+			Shooting = true;
 
-		FRotator Rotation = GetActorRotation();
+			GoingToShoot = true;
 
-		FVector Forward = GetActorForwardVector();
+			ShootDelayTimer = ShootDelay;
 
-		World->SpawnActor<APlayerBullet>(BulletBlueprint, Location + (Forward * SpawnDistance), Rotation);
+			ShootAnimTimer = ShootAnimDelay;
 	}
 }
 

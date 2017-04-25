@@ -81,11 +81,30 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Spawning")
 		float InvincibleTimer;
 
+	UPROPERTY(EditAnywhere, Category = "Animation")
+		float ShootDelay;
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+		float ShootAnimDelay;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+		bool Moving;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+		bool Shooting;
+
 private:
 
 	float DamageTimer;
 
+	float ShootDelayTimer;
+
+	float ShootAnimTimer;
+
+	bool GoingToShoot;
+
 	float CurrentHealth;
 
+	FVector MovingVector;
 };
 
