@@ -2,6 +2,7 @@
 
 #include "Mechopia.h"
 #include "ChickenLegs.h"
+#include "MechopiaCharacter.h"
 
 
 // Sets default values
@@ -27,7 +28,7 @@ void AChickenLegs::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	if (UGameplayStatics::GetPlayerCharacter(GetWorld(), 0))
+	if (UGameplayStatics::GetPlayerCharacter(GetWorld(), 0) && Dead == false)
 	{
 		ToPlayer = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetActorLocation() - GetActorLocation();
 		Length = ToPlayer.Size();
@@ -103,6 +104,18 @@ void AChickenLegs::Move()
 
 }
 
+
+int AChickenLegs::DealDamage()
+{
+	if (ThePlayerActor->IsA(AMechopiaCharacter::StaticClass())) {
+		AMechopiaCharacter* Player = Cast<AMechopiaCharacter>(ThePlayerActor);
+		Player->TakingDamage(Damage);
+	}
+
+	return 0;
+}
+
+
 void AChickenLegs::Attack()
 {
 	Attacking = false;
@@ -116,8 +129,15 @@ void AChickenLegs::OnHit()
 
 	if (Health <= 0)
 	{
-		Destroy();
+		GetCharacterMovement()->MaxWalkSpeed = 0.f;
+		Dead = true;
+		GetWorldTimerManager().SetTimer(DeathTimerHandle, this, &AChickenLegs::Death, 1.f, true);
 	}
 
 
+}
+
+void AChickenLegs::Death()
+{
+	Destroy();
 }
