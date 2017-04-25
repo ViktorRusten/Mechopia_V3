@@ -9,6 +9,8 @@
 // Sets default values
 AMr_Mushy::AMr_Mushy()
 {
+	Damage = 1;
+
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -127,10 +129,14 @@ void AMr_Mushy::Move()
 
 int AMr_Mushy::DealDamage()
 {
-	if (ThePlayerActor->IsA(AMechopiaCharacter::StaticClass())) {
-		AMechopiaCharacter* Player = Cast<AMechopiaCharacter>(ThePlayerActor);
-		Player->TakingDamage(Damage);
+	if (ThePlayerActor) {
+		if (ThePlayerActor->IsA(AMechopiaCharacter::StaticClass())) {
+			UE_LOG(LogTemp, Warning, TEXT("Tries to deal damage"));
+			AMechopiaCharacter* Player = Cast<AMechopiaCharacter>(ThePlayerActor);
+			Player->TakingDamage(Damage);
+		}
 	}
+
 
 	return 0;
 }
