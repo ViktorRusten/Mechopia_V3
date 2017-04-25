@@ -25,9 +25,9 @@ public:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	
+
 	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -42,19 +42,34 @@ public:
 		AActor* ThePlayerActor;
 
 	UFUNCTION(BlueprintPure, Category = "Damage")
-	int DealDamage();
+		int DealDamage();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool Active = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool Close = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool Dashing = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool Dead = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+		float Health = 3.f;
 
 	FVector ToPlayer;
 	FVector Direction;
 	FRotator Rotation;
 	float Counter = 1.f;
-	float Health = 3.f;
 	float Length;
 	void Dash();
 	void Move();
 	void Attack();
 	void OnHit();
-	bool Close = false;
-	bool Active = false;
+	void Death();
 	FTimerHandle DashTimerHandle;
+	FTimerHandle AttackTimerHandle;
+	FTimerHandle DeathTimerHandle;
 };

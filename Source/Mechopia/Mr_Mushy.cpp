@@ -9,7 +9,7 @@
 // Sets default values
 AMr_Mushy::AMr_Mushy()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 
@@ -19,20 +19,20 @@ AMr_Mushy::AMr_Mushy()
 void AMr_Mushy::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 
 	GetCharacterMovement()->MaxWalkSpeed = 0.f;
 	Active = false;
 	Attacking = false;
-	
+
 }
 
 // Called every frame
-void AMr_Mushy::Tick( float DeltaTime )
+void AMr_Mushy::Tick(float DeltaTime)
 {
-	Super::Tick( DeltaTime );
+	Super::Tick(DeltaTime);
 
-	if (UGameplayStatics::GetPlayerCharacter(GetWorld(), 0))
+	if (UGameplayStatics::GetPlayerCharacter(GetWorld(), 0) && Dead == false)
 	{
 		ToPlayer = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetActorLocation() - GetActorLocation();
 		Length = ToPlayer.Size();
@@ -75,7 +75,7 @@ void AMr_Mushy::Tick( float DeltaTime )
 				if (Attacking == false)
 				{
 					Attacking = true;
-					GetWorldTimerManager().SetTimer(DashTimerHandle, this, &AMr_Mushy::Attack, 1.0f, true);
+					GetWorldTimerManager().SetTimer(AttackTimerHandle, this, &AMr_Mushy::Attack, 1.0f, true);
 					UE_LOG(LogTemp, Warning, TEXT("Starting attack"));
 
 				}
@@ -83,10 +83,11 @@ void AMr_Mushy::Tick( float DeltaTime )
 				//GetRootPrimitiveComponent()->AddImpulse(GetActorForwardVector() * -500.0f);
 				//GetRootPrimitiveComponent()->SetPhysicsLinearVelocity(Direction*0);		
 			}
-		}
-		else
-		{
-			Close = false;
+
+			else
+			{
+				Close = false;
+			}
 		}
 	}
 
@@ -101,9 +102,10 @@ void AMr_Mushy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AMr_Mushy::Dash()
 {
-	if (Close == false)
+	if (Close == false && Dead == false)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = 2300.f;
+		Dashing = true;
 	}
 
 	GetWorldTimerManager().SetTimer(DashTimerHandle, this, &AMr_Mushy::Move, 0.4f, true);
@@ -113,14 +115,14 @@ void AMr_Mushy::Dash()
 
 void AMr_Mushy::Move()
 {
-	
+
 	//GetRootPrimitiveComponent()->SetPhysicsLinearVelocity(Direction * 200);
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+	Dashing = false;
 
-	
-		GetWorldTimerManager().SetTimer(DashTimerHandle, this, &AMr_Mushy::Dash, 3.0f, true);
-		//Counter = 1.f;
-	
+	GetWorldTimerManager().SetTimer(DashTimerHandle, this, &AMr_Mushy::Dash, 3.0f, true);
+	//Counter = 1.f;
+
 }
 
 int AMr_Mushy::DealDamage()
@@ -139,8 +141,8 @@ void AMr_Mushy::Attack()
 	UWorld* World = GetWorld();
 	if (World)
 	{
-		FVector Location = GetActorLocation();
-		World->SpawnActor<AMushy_HBox>(Mushy_HBox_BP, Location, Rotation);
+	FVector Location = GetActorLocation();
+	World->SpawnActor<AMushy_HBox>(Mushy_HBox_BP, Location, Rotation);
 	}
 	*/
 	Attacking = false;
@@ -154,9 +156,15 @@ void AMr_Mushy::OnHit()
 
 	if (Health <= 0)
 	{
-		Destroy();
+		GetCharacterMovement()->MaxWalkSpeed = 0.f;
+		Dead = true;
+		GetWorldTimerManager().SetTimer(DeathTimerHandle, this, &AMr_Mushy::Death, 1.f, true);
 	}
 
 
 }
 
+void AMr_Mushy::Death()
+{
+	Destroy();
+}

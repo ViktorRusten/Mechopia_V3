@@ -24,23 +24,40 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
+	UFUNCTION(BlueprintPure, Category = "Damage")
+		int DealDamage();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player")       //Category gir en overskrift i Editoren
+		AActor* ThePlayerActor;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool Attacking = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
 		int Damage = 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+		float Health = 3.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool Active = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool Close = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool Dead = false;
+
 	FVector ToPlayer;
 	FVector Direction;
 	FRotator Rotation;
 	float Counter = 1.f;
-	float Health = 3.f;
 	float Length;
 	void Move();
 	void Attack();
 	void OnHit();
-	bool Close = false;
-	bool Active = false;
+	void Death();
 	FTimerHandle AttackTimerHandle;
+	FTimerHandle DeathTimerHandle;
 	
 };
